@@ -1,6 +1,8 @@
 (function () {
   const QUESTION_COUNT = 5;
   const BEST_SCORE_KEY = "rsq_best_percent_v1";
+  const NICKNAME_KEY = "rsq_nickname_v1";
+  const PASS_MARK = 80; // fixed pass mark (change if you want)
 
   const els = {
     startScreen: document.getElementById("startScreen"),
@@ -9,7 +11,7 @@
     startBtn: document.getElementById("startBtn"),
     nextBtn: document.getElementById("nextBtn"),
     restartBtn: document.getElementById("restartBtn"),
-    passMark: document.getElementById("passMark"),
+    nickname: document.getElementById("nickname"),
     questionBlock: document.getElementById("questionBlock"),
     progressText: document.getElementById("progressText"),
     scoreSoFar: document.getElementById("scoreSoFar"),
@@ -54,6 +56,14 @@
     localStorage.setItem(BEST_SCORE_KEY, String(p));
   }
 
+  function getNickname() {
+    return (localStorage.getItem(NICKNAME_KEY) || "").trim();
+  }
+
+  function setNickname(n) {
+    localStorage.setItem(NICKNAME_KEY, (n || "").trim());
+  }
+
   function bestLineHtml() {
     const best = getBestPercent();
     return (best === null)
@@ -62,15 +72,13 @@
   }
 
   let quiz = {
-    passMark: 80,
     questions: [],
     index: 0,
     answers: new Map()
   };
 
   function startQuiz() {
-    const pm = Number(els.passMark.value);
-    quiz.passMark = Number.isFinite(pm) ? Math.max(0, Math.min(100, pm)) : 80;
+    setNickname(els.nickname ? els.nickname.value : "");
 
     quiz.questions = pickN(bank, QUESTION_COUNT);
     quiz.index = 0;
@@ -122,9 +130,7 @@
       });
     });
 
-    if (typeof chosen === "number") {
-      els.nextBtn.disabled = false;
-    }
+    if (typeof chosen === "number") els.nextBtn.disabled = false;
 
     els.nextBtn.textContent = (quiz.index === quiz.questions.length - 1) ? "Finish" : "Next";
   }
@@ -145,16 +151,20 @@
     });
 
     const percent = total > 0 ? Math.round((correct / total) * 100) : 0;
-    const passed = percent >= quiz.passMark;
+    const passed = percent >= PASS_MARK;
 
     const prevBest = getBestPercent();
     if (prevBest === null || percent > prevBest) setBestPercent(percent);
 
+    const nick = getNickname();
+    const whoLine = nick ? `<strong>Player:</strong> ${escapeHtml(nick)}<br />` : "";
+
     els.resultSummary.innerHTML = `
+      ${whoLine}
       <strong>Score:</strong> ${correct}/${total} (${percent}%)
       <span class="badge ${passed ? "pass" : "fail"}">${passed ? "PASS" : "FAIL"}</span>
       <br />
-      <strong>Pass mark:</strong> ${quiz.passMark}%
+      <strong>Pass mark:</strong> ${PASS_MARK}%
       <br />
       <strong>Best:</strong> ${getBestPercent()}%
     `;
@@ -177,7 +187,6 @@
   function next() {
     const qObj = quiz.questions[quiz.index];
     if (!qObj) return;
-
     if (!quiz.answers.has(qObj.id)) return;
 
     if (quiz.index === quiz.questions.length - 1) {
@@ -192,6 +201,8 @@
   function restart() {
     hide(els.resultScreen);
     hide(els.quizScreen);
+
+    if (els.nickname) els.nickname.value = getNickname();
     show(els.startScreen);
   }
 
@@ -206,6 +217,7 @@
       `<p class="hint">Question bank not found. Ensure <code>questions.js</code> is loading correctly.</p>`
     );
   } else {
+    if (els.nickname) els.nickname.value = getNickname();
     els.startScreen.insertAdjacentHTML("beforeend", `<p class="hint">${bestLineHtml()}</p>`);
   }
 })();
