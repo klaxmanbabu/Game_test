@@ -1,6 +1,3 @@
-// Question bank (random 5 are selected each run)
-// For Q3 and Q18, add the images in: docs/assets/q3.png and docs/assets/q18.png
-
 window.QUESTION_BANK = [
   {
     id: 1,
@@ -27,10 +24,6 @@ window.QUESTION_BANK = [
   {
     id: 3,
     q: "What does this traffic sign stand for?",
-    image: {
-      src: "./assets/q3.png",
-      alt: "Traffic sign for question 3"
-    },
     options: [
       "No Parking Zone.",
       "One Way Traffic.",
@@ -186,10 +179,6 @@ window.QUESTION_BANK = [
   {
     id: 18,
     q: "What does this sign mean?",
-    image: {
-      src: "./assets/q18.png",
-      alt: "Traffic sign for question 18"
-    },
     options: [
       "A pedestrian crossing with a barrier ahead.",
       "A railway level crossing with a barrier ahead.",
