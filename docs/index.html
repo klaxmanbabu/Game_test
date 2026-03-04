@@ -3,27 +3,29 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Road Safety Quiz</title>
+  <title>Quick Quiz</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <main class="container">
     <header class="header">
-      <h1>Road Safety Quiz</h1>
-      <p class="subtitle">You will get 5 random questions each time.</p>
+      <h1>Quick Quiz</h1>
+      <p class="subtitle">Walk-up, self-paced. Refresh to get a new random set of 5 questions.</p>
     </header>
 
     <section id="startScreen" class="card">
       <div class="row">
-        <label for="passMark"><strong>Pass mark (%)</strong></label>
-        <input id="passMark" type="number" min="0" max="100" value="80" />
+        <label for="nickname"><strong>Optional: enter a nickname (for local display only).</strong></label>
       </div>
       <div class="row">
-        <button id="startBtn" class="primary">Start Quiz</button>
+        <input id="nickname" type="text" maxlength="24" placeholder="Nickname (optional)" />
       </div>
-      <p class="hint">
-        Tip: Refreshing the page will generate a new random set of questions.
-      </p>
+
+      <div class="row">
+        <button id="startBtn" class="primary">Start quiz</button>
+      </div>
+
+      <p class="hint">This demo stores progress only on your device (no server).</p>
     </section>
 
     <section id="quizScreen" class="card hidden" aria-live="polite">
@@ -58,7 +60,7 @@
     </footer>
   </main>
 
-  <script src="./questions.js"></script>
-  <script src="./app.js"></script>
+  <script src="./questions.js?v=3"></script>
+  <script src="./app.js?v=3"></script>
 </body>
 </html>
