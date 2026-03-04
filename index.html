@@ -1,0 +1,195 @@
+<!-- index.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Quick Quiz</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; margin: 0; background:#0b1220; color:#e8eefc; }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 20px; }
+    .card { background:#111a2e; border:1px solid #24304d; border-radius:14px; padding:18px; margin:14px 0; }
+    h1 { font-size: 22px; margin: 10px 0 6px; }
+    .muted { color:#a9b6d6; font-size: 14px; }
+    button { width:100%; padding:12px 14px; margin:8px 0; border-radius:12px; border:1px solid #2b3a5e; background:#162343; color:#e8eefc; font-size:16px; }
+    button:hover { background:#1b2c55; cursor:pointer; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; }
+    .row button { width:auto; flex:1; min-width: 160px; }
+    .pill { display:inline-block; padding:6px 10px; border-radius:999px; background:#162343; border:1px solid #2b3a5e; font-size:13px; color:#a9b6d6; }
+    .good { color:#69f0ae; }
+    .bad { color:#ff8a80; }
+    .footer { margin-top: 18px; font-size: 12px; color:#a9b6d6; }
+    input { width:100%; padding:12px 14px; border-radius:12px; border:1px solid #2b3a5e; background:#0e1730; color:#e8eefc; font-size:16px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="pill" id="statusPill">Ready</div>
+      <h1>Quick Quiz</h1>
+      <div class="muted">Walk-up, self-paced. Scan the QR code and play.</div>
+    </div>
+
+    <div class="card" id="screenStart">
+      <div class="muted">Optional: enter a nickname (for local display only).</div>
+      <input id="nickname" maxlength="24" placeholder="Nickname (optional)" />
+      <div class="row">
+        <button id="btnStart">Start quiz</button>
+      </div>
+      <div class="footer">This demo stores progress only on your device (no server).</div>
+    </div>
+
+    <div class="card" id="screenQuiz" style="display:none;">
+      <div class="muted">Question <span id="qNum"></span> of <span id="qTotal"></span></div>
+      <h2 id="qText" style="margin:10px 0 6px; font-size:20px;"></h2>
+      <div id="answers"></div>
+      <div class="footer muted" id="hint"></div>
+    </div>
+
+    <div class="card" id="screenEnd" style="display:none;">
+      <h2 style="margin:0 0 8px;">Done</h2>
+      <div class="muted">Nickname: <span id="endName">-</span></div>
+      <h3 style="margin:10px 0 6px;">Score: <span id="endScore"></span>/<span id="endTotal"></span></h3>
+      <div id="endMsg" class="muted"></div>
+      <div class="row" style="margin-top:10px;">
+        <button id="btnPlayAgain">Play again</button>
+        <button id="btnReset">Reset</button>
+      </div>
+      <div class="footer">Tip: To use a question pool and pick 6 random questions, edit the <code>QUESTION_POOL</code> below.</div>
+    </div>
+  </div>
+
+<script>
+/**
+ * Edit this pool with your questions.
+ * The game will randomly pick QUIZ_LENGTH questions each play.
+ */
+const QUESTION_POOL = [
+  { q: "Which is a renewable energy source?", a: ["Coal","Solar","Diesel","Natural gas"], correct: 1, hint: "Think sunlight." },
+  { q: "How many days are in a leap year?", a: ["364","365","366","367"], correct: 2, hint: "It adds one day." },
+  { q: "Water stress refers to:", a: ["Too much rainfall","Demand exceeds available water","Ocean levels rising","Water always clean"], correct: 1, hint: "Supply vs demand." },
+  { q: "What does CO2 stand for?", a: ["Carbon dioxide","Calcium oxide","Cobalt dioxide","Carbon dioxide"], correct: 0, hint: "A greenhouse gas." },
+  { q: "Which is the largest planet in our solar system?", a: ["Earth","Mars","Jupiter","Venus"], correct: 2, hint: "A gas giant." },
+  { q: "Which practice reduces water use?", a: ["Fix leaks","Run tap continuously","Overwatering lawns","Longer showers"], correct: 0, hint: "Stop losses." },
+  { q: "A circular economy focuses on:", a: ["Dispose quickly","Reuse and recycle","Buy more","Single-use products"], correct: 1, hint: "Keep materials in use." },
+  { q: "Which is a greenhouse gas?", a: ["Nitrogen","Oxygen","Carbon dioxide","Helium"], correct: 2, hint: "Often abbreviated CO2." },
+  { q: "What is the main purpose of recycling?", a: ["Increase waste","Save resources","Use more energy","Create litter"], correct: 1, hint: "Reduce raw material extraction." },
+  { q: "Which action most directly saves electricity at home?", a: ["Leave lights on","Use LED bulbs","Open fridge longer","Run AC with windows open"], correct: 1, hint: "Efficient lighting." }
+];
+
+const QUIZ_LENGTH = 6;          // pick 5 or 6 as you like
+const SHUFFLE_ANSWERS = true;   // randomize option order
+
+const el = (id) => document.getElementById(id);
+
+let quiz = [];
+let idx = 0;
+let score = 0;
+let name = "";
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function pickRandomQuestions(pool, n) {
+  const copy = pool.map((x) => ({...x, a: [...x.a]}));
+  shuffle(copy);
+  return copy.slice(0, Math.min(n, copy.length));
+}
+
+function buildQuiz() {
+  quiz = pickRandomQuestions(QUESTION_POOL, QUIZ_LENGTH).map((item) => {
+    // shuffle answers while keeping track of correct index
+    if (!SHUFFLE_ANSWERS) return item;
+
+    const options = item.a.map((text, i) => ({ text, iOriginal: i }));
+    shuffle(options);
+
+    const newAnswers = options.map(o => o.text);
+    const newCorrect = options.findIndex(o => o.iOriginal === item.correct);
+
+    return { ...item, a: newAnswers, correct: newCorrect };
+  });
+}
+
+function setScreen(which) {
+  el("screenStart").style.display = which === "start" ? "" : "none";
+  el("screenQuiz").style.display  = which === "quiz"  ? "" : "none";
+  el("screenEnd").style.display   = which === "end"   ? "" : "none";
+  el("statusPill").textContent = which === "quiz" ? "In progress" : (which === "end" ? "Completed" : "Ready");
+}
+
+function renderQuestion() {
+  const item = quiz[idx];
+  el("qNum").textContent = String(idx + 1);
+  el("qTotal").textContent = String(quiz.length);
+  el("qText").textContent = item.q;
+  el("hint").textContent = item.hint ? `Hint: ${item.hint}` : "";
+
+  const container = el("answers");
+  container.innerHTML = "";
+
+  item.a.forEach((optText, optIdx) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = optText;
+    btn.onclick = () => choose(optIdx);
+    container.appendChild(btn);
+  });
+}
+
+function choose(optIdx) {
+  const item = quiz[idx];
+  const correct = optIdx === item.correct;
+  score += correct ? 1 : 0;
+
+  // brief feedback without being too slow
+  el("hint").innerHTML = correct
+    ? `<span class="good">Correct.</span>`
+    : `<span class="bad">Not quite.</span>`;
+
+  // move next shortly
+  setTimeout(() => {
+    idx++;
+    if (idx >= quiz.length) endQuiz();
+    else renderQuestion();
+  }, 450);
+}
+
+function startQuiz() {
+  name = el("nickname").value.trim() || "Guest";
+  idx = 0;
+  score = 0;
+  buildQuiz();
+  setScreen("quiz");
+  renderQuestion();
+}
+
+function endQuiz() {
+  setScreen("end");
+  el("endName").textContent = name;
+  el("endScore").textContent = String(score);
+  el("endTotal").textContent = String(quiz.length);
+
+  const pct = Math.round((score / quiz.length) * 100);
+  el("endMsg").textContent =
+    pct >= 80 ? "Great job. Thanks for participating."
+    : pct >= 50 ? "Nice work. Thanks for participating."
+    : "Thanks for playing. Try again for a higher score.";
+}
+
+el("btnStart").addEventListener("click", startQuiz);
+el("btnPlayAgain").addEventListener("click", () => { startQuiz(); });
+el("btnReset").addEventListener("click", () => {
+  el("nickname").value = "";
+  setScreen("start");
+});
+
+setScreen("start");
+</script>
+</body>
+</html>
