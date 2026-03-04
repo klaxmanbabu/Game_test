@@ -97,14 +97,6 @@
       ${bestLineHtml()}
     `;
 
-    const imageHtml = qObj.image
-      ? `
-        <figure class="qImage">
-          <img src="${escapeHtml(qObj.image.src)}" alt="${escapeHtml(qObj.image.alt || "")}" />
-        </figure>
-      `
-      : "";
-
     const optionsHtml = qObj.options
       .map((opt, idx) => {
         const checked = chosen === idx ? "checked" : "";
@@ -119,23 +111,8 @@
 
     els.questionBlock.innerHTML = `
       <h2>${escapeHtml(qObj.q)}</h2>
-      ${imageHtml}
       <div class="options">${optionsHtml}</div>
     `;
-
-    // Make images responsive without changing your CSS file
-    const img = els.questionBlock.querySelector(".qImage img");
-    if (img) {
-      img.style.maxWidth = "240px";
-      img.style.width = "100%";
-      img.style.height = "auto";
-      img.style.display = "block";
-      img.style.marginTop = "10px";
-      img.style.borderRadius = "12px";
-      img.style.border = "1px solid rgba(255,255,255,0.08)";
-      img.style.background = "rgba(255,255,255,0.02)";
-      img.style.padding = "8px";
-    }
 
     els.questionBlock.querySelectorAll('input[name="opt"]').forEach((r) => {
       r.addEventListener("change", (e) => {
@@ -171,8 +148,7 @@
     const passed = percent >= quiz.passMark;
 
     const prevBest = getBestPercent();
-    const newBest = (prevBest === null) ? percent : Math.max(prevBest, percent);
-    if (prevBest === null || percent > prevBest) setBestPercent(newBest);
+    if (prevBest === null || percent > prevBest) setBestPercent(percent);
 
     els.resultSummary.innerHTML = `
       <strong>Score:</strong> ${correct}/${total} (${percent}%)
@@ -230,10 +206,6 @@
       `<p class="hint">Question bank not found. Ensure <code>questions.js</code> is loading correctly.</p>`
     );
   } else {
-    // Show best score on start screen too
-    els.startScreen.insertAdjacentHTML(
-      "beforeend",
-      `<p class="hint">${bestLineHtml()}</p>`
-    );
+    els.startScreen.insertAdjacentHTML("beforeend", `<p class="hint">${bestLineHtml()}</p>`);
   }
 })();
