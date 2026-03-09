@@ -19,18 +19,7 @@ window.QUESTION_BANK = [
       "Maintaining a safe following distance to avoid collisions.",
       "Overtaking another vehicle without using indicators."
     ],
-    answerIndex: 0
-  },
-  {
-    id: 3,
-    q: "What does this traffic sign stand for?",
-    options: [
-      "No Parking Zone.",
-      "One Way Traffic.",
-      "Pedestrian Crossing.",
-      "U-Turn Prohibited."
-    ],
-    answerIndex: 1
+    answerIndex: 0  
   },
   {
     id: 4,
@@ -86,17 +75,6 @@ window.QUESTION_BANK = [
       "When the traffic on one side has slowed down."
     ],
     answerIndex: 2
-  },
-  {
-    id: 9,
-    q: "What is the rule regarding Double White/Yellow Lines on the road?",
-    options: [
-      "Overtaking is allowed if traffic is clear.",
-      "Overtaking and crossing these lines from either side, including U-turns, is strictly prohibited.",
-      "Overtaking is allowed only during the daytime.",
-      "U-turns are permitted only on highways."
-    ],
-    answerIndex: 1
   },
   {
     id: 10,
@@ -173,17 +151,6 @@ window.QUESTION_BANK = [
       "Slow down, maintain a safe distance, and use low-beam headlights.",
       "Speed up to avoid getting stuck in traffic.",
       "Turn off the vehicle’s headlights to avoid blinding other drivers."
-    ],
-    answerIndex: 1
-  },
-  {
-    id: 18,
-    q: "What does this sign mean?",
-    options: [
-      "A pedestrian crossing with a barrier ahead.",
-      "A railway level crossing with a barrier ahead.",
-      "A road under construction with a barrier ahead.",
-      "A toll booth with a barrier ahead."
     ],
     answerIndex: 1
   },
