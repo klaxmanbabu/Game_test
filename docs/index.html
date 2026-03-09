@@ -60,8 +60,11 @@
     </footer>
   </main>
 
-  <script src="./questions.js?v=20"></script>
-  <script src="./app.js?v=20"></script>
+  <script>
+    // Ensure the quiz uses 6 questions even if app.js defaults to 5
+    window.QUIZ_QUESTION_COUNT = 6;
+  </script>
+  <script src="./questions.js?v=21"></script>
+  <script src="./app.js?v=21"></script>
 </body>
 </html>
- 
